@@ -33,7 +33,7 @@ class BookController extends Controller
         $validated = $request->validate([
             'name' => 'required|string',
             'author' => 'required|string',
-            'isbn' => 'required|string|unique:books',
+            'isbn' => 'required|string|regex:/^\d{10}(\d{3})?$/|unique:books',
             'cover_image' => 'nullable|image|mimes:jpg,jpeg,png',
         ]);
 
@@ -70,13 +70,17 @@ class BookController extends Controller
         $validated = $request->validate([
             'name' => 'required|string',
             'author' => 'required|string',
-            'isbn' => 'required|string|unique:books,isbn,' . $book->id,
+            'isbn' => 'required|string|regex:/^\d{10}(\d{3})?$/|unique:books,isbn,' . $book->id,
             'cover_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
+        if ($request->has('remove_cover_image')&& $book->cover_image!='default/book.png') {
+            Storage::disk('public')->delete($book->cover_image);
+            $validated['cover_image']='default/book.png';
+        }
 
         if ($request->hasFile('cover_image')) {
             
-            if ($book->cover_image) {
+            if ($book->cover_image && $book->cover_image!='default/book.png') {
                 Storage::disk('public')->delete($book->cover_image);
             }
             $validated['cover_image'] = $request->file('cover_image')->store('covers', 'public');
@@ -91,7 +95,7 @@ class BookController extends Controller
     public function destroy(Book $book)
     {
         
-        if ($book->cover_image) {
+        if ($book->cover_image!='default/book.png') {
             Storage::disk('public')->delete($book->cover_image);
         }
 

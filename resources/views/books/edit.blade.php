@@ -28,6 +28,10 @@
             @if ($book->cover_image)
                 <div class="mb-2">
                     <img src="{{ asset('storage/' . $book->cover_image) }}" alt="Kapak" width="100">
+                        <div class="form-check">
+                            <input type="checkbox" name="remove_cover_image" id="remove_cover_image" class="form-check-input">
+                            <label for="remove_cover_image" class="form-check-label">Fotoğrafı Kaldır</label>
+                        </div>
                 </div>
             @endif
             <input type="file" name="cover_image" class="form-control-file" accept=".jpg,.jpeg,.png">
