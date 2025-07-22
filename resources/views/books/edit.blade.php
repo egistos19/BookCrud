@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    <h2>Kitap Düzenle</h2>
+    <h2 class="h3">Kitap Düzenleme</h2>
 
     <form method="POST" action="{{ route('books.update', $book) }}" enctype="multipart/form-data">
         @csrf
@@ -10,17 +10,17 @@
 
         <div class="form-group">
             <label>Kitap Adı</label>
-            <input type="text" name="name" class="form-control" value="{{ old('name', $book->name) }}" required>
+            <input type="text" name="name" class="form-control col-5" value="{{ old('name', $book->name) }}" required>
         </div>
 
         <div class="form-group">
             <label>Yazar</label>
-            <input type="text" name="author" class="form-control" value="{{ old('author', $book->author) }}" required>
+            <input type="text" name="author" class="form-control col-5" value="{{ old('author', $book->author) }}" required>
         </div>
 
         <div class="form-group">
             <label>ISBN</label>
-            <input type="text" name="isbn" class="form-control" value="{{ old('isbn', $book->isbn) }}" required>
+            <input type="text" name="isbn" class="form-control col-5" value="{{ old('isbn', $book->isbn) }}" required>
         </div>
 
         <div class="form-group">

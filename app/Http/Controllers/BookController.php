@@ -40,6 +40,8 @@ class BookController extends Controller
         if ($request->hasFile('cover_image')) {
             $path = $request->file('cover_image')->store('covers', 'public');
             $validated['cover_image'] = $path;
+        }else{
+            $validated['cover_image']='default/book.png';
         }
 
         Book::create($validated);
