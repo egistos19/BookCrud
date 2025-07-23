@@ -2,12 +2,11 @@
 
 @section('content')
 <div class="container mt-4">
-    <h2>Kitap Detayları</h2>
+    <h2 class='h3'>Kitap Detayları</h2>
 
     <div class="card" style="width: 18rem;">
-        @if($book->cover_image)
-            <img src="{{ asset('storage/' . $book->cover_image) }}" class="card-img-top" alt="Kapak">
-        @endif
+
+        <img src="{{ $book->cover_image ? asset('storage/' . $book->cover_image) : asset('storage/default/book.png') }}" class="card-img-top" alt="Kapak">
 
         <div class="card-body">
             <h5 class="card-title">{{ $book->name }}</h5>

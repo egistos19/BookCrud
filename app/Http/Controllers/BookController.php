@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-
+use App\Http\Requests\StoreBookRequest;
+use App\Http\Requests\UpdateBookRequest;
 class BookController extends Controller
 {
     /**
@@ -28,21 +29,13 @@ class BookController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreBookRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'author' => 'required|string',
-            'isbn' => 'required|string|regex:/^\d{10}(\d{3})?$/|unique:books',
-            'cover_image' => 'nullable|image|mimes:jpg,jpeg,png',
-        ]);
+        $validated = $request->validated();
 
-        if ($request->hasFile('cover_image')) {
-            $path = $request->file('cover_image')->store('covers', 'public');
-            $validated['cover_image'] = $path;
-        }else{
-            $validated['cover_image']='default/book.png';
-        }
+            if ($request->hasFile('cover_image')) {
+                $validated['cover_image'] = $request->file('cover_image')->store('covers', 'public');
+            }
 
         Book::create($validated);
 
@@ -65,18 +58,16 @@ class BookController extends Controller
         return view('books.edit', compact('book'));
     }
 
-    public function update(Request $request, Book $book)
+    public function update(UpdateBookRequest $request, Book $book)
     {
-        $validated = $request->validate([
-            'name' => 'required|string',
-            'author' => 'required|string',
-            'isbn' => 'required|string|regex:/^\d{10}(\d{3})?$/|unique:books,isbn,' . $book->id,
-            'cover_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-        ]);
-        if ($request->has('remove_cover_image')&& $book->cover_image!='default/book.png') {
-            Storage::disk('public')->delete($book->cover_image);
-            $validated['cover_image']='default/book.png';
+        $validated = $request->validated();
+        if ($request->has('remove_cover_image')) {
+            if ($book->cover_image && $book->cover_image != 'default/book.png') {
+                Storage::disk('public')->delete($book->cover_image);
+            }
+            $validated['cover_image'] = null;
         }
+
 
         if ($request->hasFile('cover_image')) {
             

@@ -16,9 +16,8 @@
         @forelse ($books as $book)
             <div class="col-md-4 mb-4">
                 <div class="card h-100">
-                    @if($book->cover_image)
-                        <img src="{{ asset('storage/' . $book->cover_image) }}" class="card-img-top" style="height: 300px; object-fit: cover;">
-                    @endif
+                    <img src="{{ $book->cover_image ? asset('storage/' . $book->cover_image) : asset('storage/default/book.png') }}" class="card-img-top" style="height: 300px; object-fit: cover;">
+
                     <div class="card-body">
                         <h5 class="card-title">{{ $book->name }}</h5>
                         <p class="card-text">Yazar: {{ $book->author }}</p>
