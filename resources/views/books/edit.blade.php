@@ -3,7 +3,15 @@
 @section('content')
 <div class="container">
     <h2 class="h3">Kitap Düzenleme</h2>
-
+    @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
     <form method="POST" action="{{ route('books.update', $book) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
@@ -27,7 +35,7 @@
             <label>Kapak Görseli</label>
             @if ($book->cover_image)
                 <div class="mb-2">
-                    <img src="{{ asset('storage/' . $book->cover_image) }}" alt="Kapak" width="100">
+                    <img src="{{ $book->cover_image ? asset('storage/' . $book->cover_image) : asset('storage/default/book.png') }}" alt="Kapak" width="100">
                         <div class="form-check">
                             <input type="checkbox" name="remove_cover_image" id="remove_cover_image" class="form-check-input">
                             <label for="remove_cover_image" class="form-check-label">Fotoğrafı Kaldır</label>
