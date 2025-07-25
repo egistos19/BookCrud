@@ -19,9 +19,14 @@
                     <img src="{{ $book->cover_image ? asset('storage/' . $book->cover_image) : asset('storage/default/book.png') }}" class="card-img-top" style="height: 300px; object-fit: cover;">
 
                     <div class="card-body">
-                        <h5 class="card-title">{{ $book->name }}</h5>
-                        <p class="card-text">Yazar: {{ $book->author }}</p>
-                        <p class="card-text">ISBN: {{ $book->isbn }}</p>
+                        <h5 class="card-title h5">{{ $book->name }}</h5>
+                        <p class="card-text"><strong>Yazar:</strong> {{  $book->author ? $book->author->name : 'Yazar belirtilmemiş' }}</p>
+                        <p class="card-text"><strong>Kitapçılar:</strong> 
+                            @if ($book->bookstores->count())
+                                {{ $book->bookstores->pluck('name')->join(', ') }}
+                            @else
+                                Kitapçı belirtilmemiş
+                            @endif</p>
                         <a href="{{ route('books.show', $book) }}" class="btn btn-outline-primary btn-sm">Detay</a>
                         @auth
                             <a href="{{ route('books.edit', $book) }}" class="btn btn-outline-secondary btn-sm">Düzenle</a>

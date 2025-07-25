@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Models\Author;
+use App\Models\Bookstore;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreBookRequest;
@@ -14,7 +16,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books = Book::all();
+        $books = Book::with('author')->orderBy('name')->get();
         return view('books.index', compact('books'));
     }
 
@@ -23,7 +25,9 @@ class BookController extends Controller
      */
     public function create()
     {
-        return view('books.create');
+        $authors = Author::orderBy('name')->get();
+        $bookstores = Bookstore::orderBy('name')->get();
+        return view('books.create', compact('authors', 'bookstores'));
     }
 
     /**
@@ -36,9 +40,15 @@ class BookController extends Controller
             if ($request->hasFile('cover_image')) {
                 $validated['cover_image'] = $request->file('cover_image')->store('covers', 'public');
             }
+            if ($request->filled('new_author')) {
+                $author = Author::firstOrCreate(['name' => $request->input('new_author')]);
+                $validated['author_id'] = $author->id;
+            }
 
-        Book::create($validated);
+        $book = Book::create($validated);
 
+        $bookstores = $request->input('bookstores', []);
+        $book->bookstores()->sync($bookstores);
         return redirect()->route('books.index')->with('success', 'Kitap eklendi!');
     }
 
@@ -55,7 +65,9 @@ class BookController extends Controller
      */
     public function edit(Book $book)
     {
-        return view('books.edit', compact('book'));
+        $authors = Author::orderBy('name')->get();
+        $bookstores = Bookstore::orderBy('name')->get();
+        return view('books.edit', compact('book', 'authors', 'bookstores'));
     }
 
     public function update(UpdateBookRequest $request, Book $book)
@@ -67,7 +79,10 @@ class BookController extends Controller
             }
             $validated['cover_image'] = null;
         }
-
+        if ($request->filled('new_author')) {
+            $author = Author::firstOrCreate(['name' => $request->input('new_author')]);
+            $validated['author_id'] = $author->id;
+        }        
 
         if ($request->hasFile('cover_image')) {
             
@@ -78,7 +93,8 @@ class BookController extends Controller
         }
 
         $book->update($validated);
-
+        $bookstores = $request->input('bookstores', []);
+        $book->bookstores()->sync($bookstores);
         return redirect()->route('books.show', $book)->with('success', 'Kitap başarıyla güncellendi.');
     }
 
@@ -86,7 +102,7 @@ class BookController extends Controller
     public function destroy(Book $book)
     {
         
-        if ($book->cover_image!='default/book.png') {
+        if ($book->cover_image && $book->cover_image!='default/book.png') {
             Storage::disk('public')->delete($book->cover_image);
         }
 
