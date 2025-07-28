@@ -24,9 +24,10 @@ class UpdateBookRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'author' => ['required', 'string', 'max:255'],
+            'author_id' => ['nullable', 'exists:authors,id'],
             'isbn' => ['required','string','regex:/^\d{10}(\d{3})?$/', Rule::unique('books')->ignore($this->book->id),],
             'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'new_author' => 'nullable|string|max:255',
         ];
     }
 }
