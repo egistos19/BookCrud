@@ -21,29 +21,32 @@
             <input type="text" name="name" id="name" value="{{ old('name') }}" required class="form-control col-5" placeholder='Kitap Adı' />
         </div>
 
-        <label for="author_id">Yazar Seç</label>
-        <select name="author_id" id="author_id" class="form-control col-5">
-            <option value="">-- Seçiniz --</option>
-            @foreach ($authors as $author)
-                <option value="{{ $author->id }}" 
-                    {{ old('author_id', optional($book ?? null)->author_id) == $author->id ? 'selected' : '' }}>
-                    {{ $author->name }}
-                </option>
-            @endforeach
-        </select>
-        <!-- search bar techniqe
-            <input list="authors" name="author_id" class="form-control col-5">
-            <datalist id="authors">
+        <div class="form-group mt-3">
+            <label for="author_id">Yazar Seç</label></br>
+            <select name="author_id" id="author_id" class="selectpicker form-control col-5" data-live-search="true">
+                <option value="">-- Seçiniz --</option>
                 @foreach ($authors as $author)
-                    <option value="{{ $author->id }}">{{ $author->name }}</option>
+                    <option value="{{ $author->id }}" 
+                        {{ old('author_id', optional($book ?? null)->author_id) == $author->id ? 'selected' : '' }}>
+                        {{ $author->name }}
+                    </option>
                 @endforeach
-            </datalist>
-        -->        
-        <div class="form-group mt-2">
+            </select>
+        </div>
+
+        <!-- Search script-->
+        <script>
+            $(document).ready(function () {
+                $('.selectpicker').selectpicker();
+            });
+        </script>
+        <!-- Search script-->
+
+        <div class="form-group mt-3">
             <label for="new_author">Yeni Yazar Ekle (Eğer listede yoksa)</label>
             <input type="text" name="new_author" id="new_author" class="form-control col-5" value="{{ old('new_author') }}" placeholder="Yeni yazar adı">
-            <small class="form-text text-muted">Listede yoksa buraya yeni bir yazar adı girin.</small>
         </div>
+
 
         <div class="form-group mt-3">
             <label >Yeni Kitapçı ekle</label><br>
@@ -66,4 +69,12 @@
         <a href="{{ route('books.index') }}" class="btn btn-secondary">İptal</a>
     </form>
 </div>
+
+
+<!-- Bootstrap Select CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
+
+<!-- Bootstrap Select JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
+
 @endsection
