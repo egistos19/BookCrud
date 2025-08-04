@@ -3,10 +3,22 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\BookImportController;
+
+
+Route::prefix('book-import')->middleware('auth')->group(function () {
+    Route::get('/', [BookImportController::class, 'showImportForm'])->name('books.import.form');
+    Route::post('/', [BookImportController::class, 'store'])->name('book-import.store');
+    Route::get('/history', [BookImportController::class, 'importHistory'])->name('books.import.history');
+    Route::post('/import', [BookImportController::class, 'upload'])->name('books.import.upload');
+
+});
+
+Route::post('/authors/import', [BookImportController::class, 'importAuthors'])->name('authors.import');
+
 
 Route::get('/', [BookController::class, 'index'])->name('books.index');
 Route::resource('books', BookController::class)->except(['index'])->middleware('auth');
-
 
 Route::get('/books/{book}', [BookController::class, 'show'])->name('books.show');
 
@@ -22,5 +34,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/books/{book}', [BookController::class, 'update'])->name('books.update');
     Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('books.destroy');
 });
+
+
 
 require __DIR__.'/auth.php';
