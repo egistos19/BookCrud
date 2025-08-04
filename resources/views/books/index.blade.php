@@ -44,6 +44,9 @@
             <p class="text-muted">Henüz kitap eklenmemiş.</p>
         @endforelse
     </div>
+    <div class=mb-4> 
+        {{ $books->links() }}
+    </div>
 </div>
 @endsection
 
