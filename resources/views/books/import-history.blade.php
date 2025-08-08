@@ -26,10 +26,10 @@
                     <td>{{ $history->id }}</td>
                     <td>{{ basename($history->filename) }}</td>
                     <td>
-                        @if ($history->status === 'completed')
+                        @if ($history->status === \App\Enums\ImportStatus::Completed)
                             <span class="badge bg-success">Tamamlandı</span>
-                        @elseif ($history->status === 'processing')
-                            <span class="badge bg-warning text-dark">İşleniyor</span>
+                        @elseif ($history->status === \App\Enums\ImportStatus::Uploaded)
+                            <span class="badge bg-warning text-dark">Yüklendi</span>
                         @else
                             <span class="badge bg-danger">Hata</span>
                         @endif

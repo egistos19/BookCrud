@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 
 class Book extends Model
 {       
@@ -12,11 +15,13 @@ class Book extends Model
         'isbn',
         'cover_image',
         ];
-        public function author()
+        protected $casts = ['author_id' => 'integer',];
+        
+        public function author(): BelongsTo
         {
         return $this->belongsTo(Author::class);
         }
-        public function bookstores()
+        public function bookstores(): BelongsToMany
         {
         return $this->belongsToMany(Bookstore::class);
         }    

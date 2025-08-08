@@ -8,13 +8,11 @@ use App\Http\Controllers\BookImportController;
 
 Route::prefix('book-import')->middleware('auth')->group(function () {
     Route::get('/', [BookImportController::class, 'showImportForm'])->name('books.import.form');
-    Route::post('/', [BookImportController::class, 'store'])->name('book-import.store');
     Route::get('/history', [BookImportController::class, 'importHistory'])->name('books.import.history');
-    Route::post('/import', [BookImportController::class, 'upload'])->name('books.import.upload');
 
 });
 
-Route::post('/authors/import', [BookImportController::class, 'importAuthors'])->name('authors.import');
+Route::post('/authors/import', [BookImportController::class, 'importAuthors'])->middleware('auth')->name('authors.import');
 
 
 Route::get('/', [BookController::class, 'index'])->name('books.index');
