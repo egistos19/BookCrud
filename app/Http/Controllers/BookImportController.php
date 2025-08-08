@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ImportHistory;
 use App\Jobs\ImportAuthorJob;
+use App\Enums\ImportStatus;
 
 class BookImportController extends Controller
 {
@@ -16,19 +17,26 @@ class BookImportController extends Controller
     public function importAuthors(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,xlsx,xls,txt|max:2048',
+            'file' => 'required|file|max:2048',
         ]);
 
         $uploadedFile = $request->file('file');
         $filename = $uploadedFile->getClientOriginalName();
-        $path = $uploadedFile->storeAs('author-imports', $filename);
+        $originalName = pathinfo($filename, PATHINFO_FILENAME);
+        $extension = strtolower($uploadedFile->getClientOriginalExtension());
+
+        $path = $uploadedFile->storeAs('author-imports', $originalName . '.' . $extension);
+        
+        if (!in_array($extension, ['csv', 'xls', 'xlsx'])) {
+            return back()->withErrors(['file' => 'Sadece CSV veya Excel dosyaları yükleyebilirsiniz.']);
+        }
 
         $history = ImportHistory::create([
             'filename' => basename($path),
-            'status' => 'processing',
+            'status' => ImportStatus::Uploaded,
         ]);
-
-        \App\Jobs\ImportAuthorJob::dispatch($path, $history);
+        
+        \App\Jobs\ImportAuthorJob::dispatch($path, $history->id);
 
         return redirect()->back()->with('success', 'Yazarların içe aktarılması başlatıldı.');
     }

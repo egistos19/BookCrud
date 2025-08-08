@@ -26,6 +26,8 @@ class StoreBookRequest extends FormRequest
             'author_id' => 'nullable|exists:authors,id',
             'isbn' => 'required|string|regex:/^\d{10}(\d{3})?$/|unique:books',
             'cover_image' => 'nullable|image|mimes:jpg,jpeg,png',
+            'bookstores'   => 'array',
+            'bookstores.*' => 'exists:bookstores,id',
         ];
     }
 }

@@ -20,7 +20,7 @@
         @csrf
         <div class="form-group">
             <label>Excel/CSV Dosyası</label>
-            <input type="file" name="file" class="form-control" required>
+            <input type="file" name="file" class="form-control" accept=".csv, .xls, .xlsx" required>
         </div>
         <button type="submit" class="btn btn-primary mt-2">Yükle</button>
     </form>

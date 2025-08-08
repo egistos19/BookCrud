@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('import_histories', function (Blueprint $table) {
             $table->id();
             $table->string('filename');
-            $table->enum('status', ['processing', 'completed', 'failed'])->default('processing');
+            $table->enum('status', ['uploaded', 'completed', 'failed'])->default('uploaded');
+            $table->text('error_message')->nullable();
             $table->timestamps();
         });
     }
