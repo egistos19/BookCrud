@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Author extends Model
 {
-    
-
     protected $fillable = ['name'];
 
     public function books(): HasMany

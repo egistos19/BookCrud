@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\BookImportController;
 
-
 Route::prefix('book-import')->middleware('auth')->group(function () {
     Route::get('/', [BookImportController::class, 'showImportForm'])->name('books.import.form');
     Route::get('/history', [BookImportController::class, 'importHistory'])->name('books.import.history');
