@@ -21,29 +21,28 @@ class BookImportController extends Controller
         ]);
 
         $uploadedFile = $request->file('file');
-        $filename = $uploadedFile->getClientOriginalName();
-        $originalName = pathinfo($filename, PATHINFO_FILENAME);
+        $filename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
         $extension = strtolower($uploadedFile->getClientOriginalExtension());
-
-        $path = $uploadedFile->storeAs('author-imports', $originalName . '.' . $extension);
 
         if (!in_array($extension, ['csv', 'xls', 'xlsx'])) {
             return back()->withErrors(['file' => 'Sadece CSV veya Excel dosyaları yükleyebilirsiniz.']);
         }
+
+        $path = $uploadedFile->storeAs('author-imports', $filename . '.' . $extension);
 
         $history = ImportHistory::create([
             'filename' => basename($path),
             'status' => ImportStatus::Uploaded,
         ]);
 
-        \App\Jobs\ImportAuthorJob::dispatch($path, $history->id);
+        ImportAuthorJob::dispatch($path, $history->id);
 
         return redirect()->back()->with('success', 'Yazarların içe aktarılması başlatıldı.');
     }
+
     public function importHistory()
     {
         $histories = ImportHistory::orderBy('created_at', 'desc')->paginate(10);
         return view('books.import-history', compact('histories'));
     }
-
 }

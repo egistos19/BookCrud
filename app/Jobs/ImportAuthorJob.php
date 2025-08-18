@@ -2,93 +2,58 @@
 
 namespace App\Jobs;
 
-use App\Models\Author;
-use App\Models\ImportHistory;
+use App\Services\BulkImport\Handlers\ReadFileHandler;
+use App\Services\BulkImport\Handlers\ProcessAuthorsHandler;
+use App\Services\BulkImport\Handlers\UpdateHistoryHandler;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use Illuminate\Support\Facades\DB;
+use App\Models\ImportHistory;
 use App\Enums\ImportStatus;
-use Throwable;
+use Illuminate\Support\Facades\Log;
 
 class ImportAuthorJob implements ShouldQueue
 {
-    use Dispatchable;
-    use InteractsWithQueue;
-    use Queueable;
-    use SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $filePath;
-    protected $importHistoryId;
+    protected string $filePath;
+    protected int $historyId;
 
-    public function __construct($filePath, $importHistoryId)
+    public function __construct(string $filePath, int $historyId)
     {
         $this->filePath = $filePath;
-        $this->importHistoryId = $importHistoryId;
+        $this->historyId = $historyId;
     }
 
-    public function handle()
+    public function handle(): void
     {
-        $importRecord = \App\Models\ImportHistory::find($this->importHistoryId);
+        $history = ImportHistory::find($this->historyId);
 
-        if (!$importRecord || $importRecord->status !== ImportStatus::Uploaded) {
+        if (!$history || $history->status !== ImportStatus::Uploaded) {
             Log::warning("Import job skipped: Record not found or not in 'uploaded' status.");
             return;
         }
 
         try {
-            $fullPath = Storage::path($this->filePath);
-            $extension = pathinfo($fullPath, PATHINFO_EXTENSION);
+            Log::info("Import job started: history_id={$this->historyId}");
 
-            $authors = [];
+            $handler = new ReadFileHandler();
+            $handler
+                ->setNext(new ProcessAuthorsHandler())
+                ->setNext(new UpdateHistoryHandler());
 
-            if ($extension === 'csv') {
-                $data = array_map('str_getcsv', file($fullPath));
-                unset($data[0]);
+            $handler->handle([
+                'file_path' => $this->filePath,
+                'history_id' => $this->historyId,
+            ]);
 
-                foreach ($data as $row) {
-                    $name = trim($row[0] ?? '');
-                    if ($name) {
-                        $authors[] = $name;
-                    }
-                }
-
-            } elseif (in_array($extension, ['xlsx', 'xls'])) {
-                $spreadsheet = IOFactory::load($fullPath);
-                $worksheet = $spreadsheet->getActiveSheet();
-                $rows = $worksheet->toArray();
-
-                foreach ($rows as $index => $row) {
-                    if ($index === 0 && strtolower($row[0]) === 'yazar') {
-                        continue;
-                    }
-
-                    $name = trim($row[0] ?? '');
-                    if ($name) {
-                        $authors[] = $name;
-                    }
-                }
-            } else {
-                throw new \Exception("Desteklenmeyen dosya türü: .$extension");
-            }
-
-            DB::transaction(function () use ($authors) {
-                foreach ($authors as $name) {
-                    Author::firstOrCreate(['name' => $name]);
-                }
-            });
-
-            $importRecord->update(['status' => ImportStatus::Completed]);
         } catch (\Throwable $e) {
-            Log::error('Author import error: ' . $e->getMessage());
-            $importRecord->update([
+            Log::error("ImportAuthorJob error: " . $e->getMessage());
+
+            $history->update([
                 'status' => ImportStatus::Failed,
-                'error_message' => $e->getMessage(),
             ]);
         }
     }
