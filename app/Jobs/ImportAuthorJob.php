@@ -16,7 +16,10 @@ use Illuminate\Support\Facades\Log;
 
 class ImportAuthorJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     protected string $filePath;
     protected int $historyId;
