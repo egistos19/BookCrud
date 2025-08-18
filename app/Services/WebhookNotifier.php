@@ -16,7 +16,7 @@ class WebhookNotifier
 
     public static function sendToSemihKeskinNet(Book $book)
     {
-        Http::post(' https://semihkeskin.net', [
+        Http::post('https://semihkeskin.net', [
             'book' => $book->only(['id', 'name', 'isbn']),
         ]);
     }
