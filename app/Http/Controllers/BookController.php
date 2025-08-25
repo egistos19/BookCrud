@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
+use App\Factories\BookExportFactory;
 
 class BookController extends Controller
 {
@@ -110,5 +111,24 @@ class BookController extends Controller
         $book->delete();
 
         return redirect()->route('books.index')->with('success', 'Kitap başarıyla silindi.');
+    }
+    public function export(Book $book)
+    {
+        $format = request('format', 'html'); // url: ?format=json/pdf/html
+        $strategy = BookExportFactory::make($format);
+        $output = $strategy->export($book);
+
+        // JSON
+        if ($format === 'json') {
+            return response($output)->header('Content-Type', 'application/json');
+        }
+
+        // PDF
+        if ($format === 'pdf') {
+            return response($output)->header('Content-Type', 'text/plain');
+        }
+
+        // HTML
+        return response($output)->header('Content-Type', 'text/html');
     }
 }

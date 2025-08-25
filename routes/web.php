@@ -10,6 +10,7 @@ Route::prefix('book-import')->middleware('auth')->group(function () {
     Route::get('/history', [BookImportController::class, 'importHistory'])->name('books.import.history');
 
 });
+Route::get('/books/{book}/export', [BookController::class, 'export'])->name('books.export');
 
 Route::post('/authors/import', [BookImportController::class, 'importAuthors'])->middleware('auth')->name('authors.import');
 
