@@ -32,5 +32,9 @@
             <a href="{{ route('books.index') }}" class="btn btn-secondary">Geri Dön</a>
         </div>
     </div>
+    <br>
+    <a href="{{ route('books.export', $book) }}?format=html" class="btn btn-primary">HTML</a>
+    <a href="{{ route('books.export', $book) }}?format=pdf" class="btn btn-success">PDF</a>
+    <a href="{{ route('books.export', $book) }}?format=json" class="btn btn-info">JSON</a>
 </div>
 @endsection
